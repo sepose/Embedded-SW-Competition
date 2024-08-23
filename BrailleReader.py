@@ -17,8 +17,8 @@ from bs4 import BeautifulSoup
 import speech_recognition as sr
 import pyaudio
 
-# 이승찬,방유성,남혜원,정윤아
-# 점자 번역 및 송출 스피커
+# 2024 임베디드SW 경진대회 팀 1040_애플파이
+# 이승찬 방유성 남혜원 정윤아 
 
 braille_dict_Start = {
 #여기서 부터는 초성입니다.
@@ -220,7 +220,6 @@ def conv(Str):
                     
         # 기호 예외 처리 끝
         
-        
         if Str[i] == '⠸' and Str[i+1] == "⠎":
             if Str[i-1] == '⠠':
                 newstr += Type_1_double_dict.get(Str[i+1],"")
@@ -229,7 +228,6 @@ def conv(Str):
                 i += 2
                 newstr += "것"
                 
-        
         # '그래서' 등의 부사 번역
         if Str[i] == '⠁' and Str[i+1] in Type_C_dict:
             if Str[i+2] == ' ' or Str[i+2]== '⠀':
@@ -283,7 +281,6 @@ def conv(Str):
                         newstr += braille_dict_Middle_Plus.get(Str[i-1],"")
                         i += 1
                         continue
-                
                 
                 newstr += Type_1_dict.get(Str[i],"")
                 i+=1
@@ -368,11 +365,10 @@ def readimg(image):
     return sentence
 
 def readbraille(path):
-    
-    tempimg = cv2.imread(path)
-    binaryimg = binary_img(tempimg)
-    cv2.imwrite(path,binaryimg)
 
+    tempimg = cv2.imread(path)
+    binimg = binary_img(tempimg)
+    cv2.imwrite(path,binimg)
     chrome_service = Service('/usr/lib/chromium-browser/chromedriver')
     options = webdriver.ChromeOptions()
     options.add_argument("headless")
@@ -412,7 +408,7 @@ def captureimg():
     img = cv2.imread(r"/home/well/Desktop/capstone/Embedded/braille.jpg")
     img = cv2.rotate(img,cv2.ROTATE_90_COUNTERCLOCKWISE)
     cv2.imwrite(imgpath,img)
-    playsound.playsound('shutter.mp3')
+    playsound.playsound('/home/well/Desktop/capstone/Embedded/shutter.mp3')
     print("사진촬영 완료")
     say("사진 찍기에 성공하였습니다.")
     
@@ -426,7 +422,7 @@ def waiting():
     
        with sr.Microphone() as source:
            
-           playsound.playsound('recordstart.mp3')
+           playsound.playsound('/home/well/Desktop/capstone/Embedded/recordstart.mp3')
            r.adjust_for_ambient_noise(source)
            audio = r.listen(source)
            
@@ -440,7 +436,11 @@ def waiting():
         
            if ("해석" in startvoice) or ("시작" in startvoice) :
                print("해석을 시작합니다")
-               break
+               return 0
+            
+           elif ("종료" in startvoice):
+               print("종료합니다.")
+               return "End"
                
            elif startvoice != "알수없음":
                say("문서를 해석하려면 해석시작 이라고 말하세요.")
@@ -449,7 +449,12 @@ def waiting():
 
 while(1):
             
-   waiting()
+   status = waiting()
+   
+   if (status == "End"):
+       say("시스템을 종료합니다.")
+       break
+       
    success, Obtainedimg, Obtainedpath = captureimg()
 
    helpmessage = """ 알림음 이후에 분석 방법을 말해주세요.
@@ -467,7 +472,7 @@ while(1):
          with sr.Microphone() as source:
              
              r.adjust_for_ambient_noise(source)
-             playsound.playsound('recordstart.mp3')
+             playsound.playsound('/home/well/Desktop/capstone/Embedded/recordstart.mp3')
              audio = r.listen(source)
        
              try:
@@ -478,7 +483,6 @@ while(1):
              except:
                  choice = "알수없음"
            
-   
          if "한글" in choice:
        
              say("이미지속 글자를 분석합니다.")
@@ -498,7 +502,5 @@ while(1):
              say("알림음 이후 다시 말해주세요.")
        
    say("메인 메뉴로 이동합니다.")
-
-
 
 
